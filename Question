@@ -1,0 +1,20 @@
+The xFusionCorp Industries ML platform team is conducting a parallel-training bake-off for the fraud-detection model. The same estimator is to be trained twice: once on a single worker and once across all available CPUs. 
+The MLflow Compare view will be utilized to highlight any differences in wall time. A draft script is located at /root/code/fraud-detection/src/models/train_parallel.py. 
+Currently, executing this script yields nearly identical wall times for both the 'serial' and 'parallel' runs, resulting in the Compare view being unable to differentiate between the two configurations. 
+Your task is to modify the script to ensure that the second run executes in genuine parallel mode. Additionally, each training run must log the actual number of workers utilized, and the observed parallelization speedup must be recorded.
+
+1. The MLflow tracking server is already running on port 5000. The MLflow UI button at the top of the lab can be opened to confirm—the dashboard loads with an empty parallel-training experiment.
+
+2. The project layout under /root/code/fraud-detection/:
+
+  -> data/train.csv – A 5000-row synthetic binary-classification dataset (imbalanced roughly 70 / 30). Larger than the 200-row dataset used earlier in the section because the n_jobs speedup is only visible once there is enough work per tree.
+  -> src/models/train_parallel.py – The bake-off script. Data loading, MLflow experiment setup, wall-time measurement, metrics.training_time_seconds logging, and model persistence to models/model.pkl are already wired; the corrections are confined to this file.
+
+3. Run the script once against the scaffold as-is—python src/models/train_parallel.py—and note that both runs report near-identical wall times.
+
+4. The end state must include:
+
+  -> At least two training runs exist in the parallel-training experiment, with params.n_jobs taking the values 1 and -1.
+  -> Each training run carries metrics.training_time_seconds, recorded for both the single-worker (n_jobs = 1) and all-cores (n_jobs = -1) configurations.
+  -> A speedup-summary run logs a speedup metric equal to the serial wall time divided by the parallel wall time. (The exact magnitude depends on the container's core count and load; on a 2-CPU box the all-cores run is typically faster.)
+  -> A pickled model at /root/code/fraud-detection/models/model.pkl.
